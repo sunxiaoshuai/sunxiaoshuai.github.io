@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>选字游戏</title>
+	<style>
+		*{margin: 0;padding: 0;}
+		#wrap{margin: 100px auto 0;padding: 10px 10px 0;width: 400px;height: 600px;background: #ccc;border: 10px solid purple;border-radius: 30px;}
+		#time{font-size: 20px;}
+		#count{float: right;font-size: 20px;}
+		#content{margin: 80px auto;width: 200px;height: 200px;border: 5px solid;border-radius: 20px;text-align: center;line-height: 200px;font-size: 150px;}
+		#wrap p{height: 40px;border: 3px solid cyan;border-radius: 10px;text-align: center;line-height: 40px;}
+		#list li{display: inline-block;margin: 10px 0 0 35px;border: 3px solid;list-style: none;font-size: 30px;cursor: pointer;}
+		.start,.close{float: left;margin-top: 30px;margin-left: 50px;width: 100px;height: 30px;border: 10px solid;text-align: center;line-height: 30px;font-size: 20px;color: red;cursor: pointer;}	
+		.close{color: black;}
+	</style>
+</head>
+<body>
+	<div id="wrap">
+		<span id="time">剩余时间:30</span>
+		<span id="count">完成:0</span>
+		<div id="content">啪</div>
+		<p>tips: 根据上面的颜色,选择下面正确的文字</p>
+		<ul id="list">
+			<li>啪</li>
+			<li>啪</li>
+			<li>啪</li>
+			<li>啪</li>
+			<li>啪</li>
+		</ul>
+		<div class="start">约 😳</div>
+		<div class="close">不约 😒</div>
+	</div>
+</body>
+</html>
+<script>
+	// 获取元素
+	var time=document.getElementById('time');
+	var count=document.getElementById('count');
+	var content=document.getElementById('content');
+	var lis=document.getElementsByTagName('li');
+	var startBtn=document.getElementsByClassName('start')[0];
+	var closeBtn=document.getElementsByClassName('close')[0];
+
+	// 定义数组
+	var textArr=['黑','黄','红','蓝','绿'];
+	var colorArr=['black','yellow','red','blue','green'];
+
+	var trueText='';  // 定义一个全局变量用来存放正确的文字
+	var timer=null;  // 定义全局定时器
+
+	// 开始按钮
+	startBtn.onclick=function()
+	{	
+		var bol=true;  // 定义开关
+		var score=0;  // 定义成绩
+		var remainTime=30;  // 定义时间
+
+		clearInterval(timer); 	// 每次点击开始按钮就 清除定时器
+		count.innerHTML='完成:0';	// 恢复默认 
+		time.innerHTML='剩余时间:30';	  // 恢复默认
+
+		// 大字的改变
+		function bigText()
+		{
+			// 将随机到的文字赋值给 content.innerTHML
+			var text=textArr[Math.floor(Math.random()*textArr.length)];
+			content.innerHTML=text;	
+
+			// 获取一个随机数 取值范围是 0~4
+			var random=Math.floor(Math.random()*colorArr.length);
+			// 把随机到的颜色赋值给 content.style.color
+			var color=colorArr[random];
+			content.style.color=color;
+
+			// 文字数组和颜色数组的下标一一对应  把颜色对应的文字存在变量 trueText 中, 用来做判断
+			trueText=textArr[random];
+		}	
+		bigText();
+
+		// 小字的改变
+		function smallText()
+		{
+			// 将文字数组拷贝一份
+			var newText=textArr.slice(0);
+			// 对文字数组进行重新排序
+			newText.sort(function()
+			{
+				return Math.random()-0.5;
+			});
+
+			// 将颜色数组拷贝一份
+			var newColor=colorArr.slice(0);
+			// 对颜色数组进行重新排序
+			newColor.sort(function()
+			{
+				return Math.random()-0.5;
+			});
+
+			// 为小字进行赋值
+			for(var i=0;i<newText.length;i++)
+			{
+				lis[i].innerHTML=newText[i];
+				lis[i].style.color=newColor[i];
+			}
+		}
+		smallText();
+
+		// 小字的点击事件
+		for(var i=0;i<lis.length;i++)
+		{
+			lis[i].onclick=function()
+			{
+				if(bol)
+				{
+					// 判断点击的文字 是否等于 正确的文字 ,如果等于 分数增加 ,接着调用大字函数和小字函数
+					if(this.innerHTML==trueText)
+					{
+						score++;
+						count.innerHTML='完成:'+score;
+						bigText();
+						smallText();
+					}
+					else // 如果不等于 重新开始
+					{
+						clearInterval(timer);
+						alert('笨蛋');
+						count.innerHTML='完成:0';
+						time.innerHTML='剩余时间:30';
+						score=0;
+						remainTime=30;
+						date();
+					}
+				}	
+			}
+		}
+		// 处理时间函数
+		function date()
+		{
+			timer=setInterval(function()
+			{
+				remainTime--;	// 时间减少
+				time.innerHTML='剩余时间:'+remainTime;
+				// 判断 时间等于0, 点击事件没有效果, 清除定时器
+				if(0==remainTime)
+				{
+					bol=false;
+					clearInterval(timer);
+				}
+			},1000)
+		}
+		date();
+	}
+	// 关闭按钮
+	closeBtn.onclick=function(){window.close();}
+</script>
